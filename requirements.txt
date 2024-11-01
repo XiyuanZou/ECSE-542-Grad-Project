@@ -1,0 +1,6 @@
+openai
+python-dotenv
+streamlit
+streamlit_float
+PyPDF2
+scikit-learn
