@@ -1,12 +1,15 @@
 import streamlit as st
 import os, pickle
+from utils import self_checking
 
 # Function to highlight similar key points
 def highlight_similar(idx):
     st.session_state.highlighted = similar_points_map[idx]+[idx]
-
+        
+        
 models = ["gpt-3.5-turbo-1106", "gpt-4-turbo", "gpt-4o-mini", "gpt-4o-mini-2024-07-18"]
-
+with open("document_text", "rb") as fp: 
+    document_text =pickle.load(fp)
 with open("summary_text_lst", "rb") as fp: 
     summary_text_lst=pickle.load(fp)
 with open("similar_points_map", "rb") as fp: 
@@ -23,15 +26,13 @@ for target_key_point_idx in range(len(similar_points_map)):
         for kp in summary:
             if kp in [" ", "\n", ""]: #ignore padding points
                 continue
-            if kp_index in similar_points_map[target_key_point_idx]:
+            if kp_index in similar_points_map[target_key_point_idx]+[target_key_point_idx]:
                 confident=True
                 break
             kp_index += 1
         if(confident):
             num_confident_models+=1
     
-    if num_confident_models==0:
-        num_confident_models=1
     confidence_map[target_key_point_idx]=num_confident_models
 
     
@@ -55,9 +56,11 @@ for s_idx, summary in enumerate(summary_text_lst):
             f"<div style='background-color: {color}; padding: 5px; border-radius: 5px;'>{kp}</div>",
             unsafe_allow_html=True
         )
-        if st.button("Cross-model Checking", key=f"btn_{kp_index}", on_click=highlight_similar, args=(kp_index,)):
+        if st.button("Cross-model Checking", key=f"cross_btn_{kp_index}", on_click=highlight_similar, args=(kp_index,)):
             st.markdown(f"Cross-model confidence: {confidence_map[kp_index]}/{len(models)}")
-        
+        if st.button("Self Checking", key=f"self_btn_{kp_index}"):
+            self_confidence=self_checking(models[s_idx], kp, document_text)
+            st.markdown(f"Self-checking confidence: {self_confidence}/10")
         st.markdown("  \n")
         
         kp_index += 1

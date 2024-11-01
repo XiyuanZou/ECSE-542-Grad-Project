@@ -86,13 +86,15 @@ if file is not None:
             for i, _ in enumerate(key_points):
                 similar_points_map[i] = [j for j in range(len(key_points)) if similarity_matrix[i, j] >= SIMILARITY_THRESHOLD and i != j] #similarity_points_map (num_models*num_key_points, )
 
+            with open("document_text", "wb") as fp: 
+                pickle.dump(content, fp)
             with open("summary_text_lst", "wb") as fp: 
                 pickle.dump(summary_text_lst, fp)
             with open("similar_points_map", "wb") as fp: 
                 pickle.dump(similar_points_map, fp)
                 
-            if st.button("Begin Cross-model Checking", key="cross-checking button"):
-                st.switch_page("pages/cross-model_checking.py")
+            if st.button("Begin Answer Checking", key="answer checking button"):
+                st.switch_page("pages/answer_checking.py")
             
             print(similar_points_map)
 
